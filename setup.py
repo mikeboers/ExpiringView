@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name='expiringview',
-    version='1.0a',
+    version='0.1a',
     description='Mapping class which gives keys an expiry time.',
     url='http://github.com/mikeboers/ExpiringView',
     py_modules=['expiringview'],
