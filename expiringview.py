@@ -10,6 +10,18 @@ class ExpiringView(collections.MutableMapping):
         if on_expire:
             self.on_expire = on_expire
     
+    def on_expire(self, key, value):
+        '''Default callback for expired pairs. Override.'''
+        pass
+        
+    def collect_garbage(self):
+        '''Purge all expired pairs.'''
+        for x in self:
+            pass
+    
+    # Everything from this point on is standard Mapping interfaces.
+    # ------------------------------------------------------------------------
+    
     def __setitem__(self, key, value):
         self.set(key, value)
     
@@ -17,12 +29,10 @@ class ExpiringView(collections.MutableMapping):
         pair = self.mapping.get(key)
         if pair and pair[0] is not None and pair[0] < time.time():
             del self.mapping[key]
-            self.on_expire(pair[1])
+            self.on_expire(*pair)
             return None
         return pair
     
-    def on_expire(self, value):
-        pass
     
     def set(self, key, value, maxage=None):
         if maxage is None:
@@ -37,14 +47,6 @@ class ExpiringView(collections.MutableMapping):
         try:
             return self[key]
         except KeyError:
-            self.set(key, value, maxage)
-            return value
-    
-    def setdefault_with_call(self, key, callback, maxage=None):
-        try:
-            return self[key]
-        except KeyError:
-            value = callback()
             self.set(key, value, maxage)
             return value
         
@@ -69,19 +71,15 @@ class ExpiringView(collections.MutableMapping):
     def __len__(self):
         return len(self.mapping)
     
-    def collect_garbage(self):
-        for x in self:
-            pass
-    
     def __getattr__(self, name):
         return getattr(self.mapping, name)
     
 
-def on_expire(value):
-    print 'expired', repr(value)
-
 
 if __name__ == '__main__':
+
+    def on_expire(*args):
+        print 'expired', repr(args)
     x = ExpiringView({}, maxage=1, on_expire=on_expire)
     x['key'] = 'value'
 
