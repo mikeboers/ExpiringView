@@ -2,7 +2,16 @@
 import collections
 import time
 
+
 class ExpiringView(collections.MutableMapping):
+    '''Mapping class which gives key/value pairs an expiry time.
+    
+    Parameters:
+        mapping: The mapping to wrap.
+        maxage: The default maxage of pairs.
+        on_expire: Function to call when a pair is expired
+    
+    '''
     
     def __init__(self, mapping, maxage=None, on_expire=None):
         self.mapping = mapping
